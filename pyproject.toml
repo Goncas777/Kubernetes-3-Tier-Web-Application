@@ -1,0 +1,35 @@
+[tool.poetry]
+
+packages = [
+    { include = "./backend" },
+]
+[project]
+name = "cstrader"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Nelson Zarate",email = "nelsonpinto1415@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi (>=0.121.0,<0.122.0)",
+    "sqlalchemy (>=2.0.44,<3.0.0)",
+    "uvicorn[standard] (>=0.38.0,<0.39.0)",
+    "alembic (>=1.17.1,<2.0.0)",
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "pydantic[email] (>=2.12.4,<3.0.0)",
+    "pyjwt (>=2.10.1,<3.0.0)",
+    "passlib (>=1.7.4,<1.8)",
+    "python-dotenv (>=1.2.1,<2.0.0)",
+    "pydantic-settings (>=2.11.0,<3.0.0)",
+    "bcrypt (==4.0.1)",
+    "pytest (>=9.0.1,<10.0.0)",
+    "httpx (>=0.28.1,<0.29.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

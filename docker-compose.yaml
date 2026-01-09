@@ -1,0 +1,79 @@
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: ./backend/ops/backend.Dockerfile
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_DRIVER: postgresql
+      DATABASE_USERNAME: user
+      DATABASE_PASSWORD: password
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_NAME: db
+
+  frontend:
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/html:/usr/share/nginx/html
+      - ./frontend/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+      
+  database:
+    image: postgres:17
+    restart: always
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    links:
+      - database:db
+    networks:
+      - app-network
+    ports:
+      - "5433:8080"
+    depends_on:
+      - database
+
+  initialize_admin:
+    volumes:
+      - .:/app
+    build:
+      context: .
+      dockerfile: ./backend/ops/backend.Dockerfile
+    command: sh -c "sleep 15 && poetry run python backend/src/initialize_admin.py"
+    depends_on:
+      - database
+      - api
+    networks:
+      - app-network
+    environment:
+      ADMIN_EMAIL: admin@cstrader.com
+      ADMIN_PASSWORD: SuperSecureAdmin123!
+      ADMIN_NAME: System Admin
+volumes:
+  data:
+
+networks:
+  app-network:
+    driver: bridge

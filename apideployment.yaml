@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api
+  name: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: cstrader:latest
+        imagePullPolicy: IfNotPresent
+        name: cstrader
+        envFrom:
+        - secretRef:
+            name: database-credentials
+        resources: {}
+status: {}
