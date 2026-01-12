@@ -1,29 +1,45 @@
-down: 
-	docker compose down -v --remove-orphans
-up: 
-	docker compose up --build api frontend database adminer
+start:
+	minikube start
 
-it:
-	docker compose run -it api bash
+addons:
+	minikube addons enable ingress
+	minikube addons enable registry
 
-current:
-	docker exec -it cstrader-api-1 poetry run alembic -c backend/alembic.ini current
+images:
+	docker build -f backend/ops/backend.Dockerfile -t cstrader .
+	docker build -f frontend/Dockerfile -t mynginx .
+	minikube image load cstrader
+	minikube image load mynginx
 
-migrate:
-	docker exec -it cstrader-api-1 poetry run alembic -c backend/alembic.ini revision --autogenerate -m "${m}"
+secrets:
+	kubectl create secret generic database-credentials \
+		--from-env-file=.env \
+		--dry-run=client -o yaml | kubectl apply -f -
 
-migrations:
-	docker exec -it cstrader-api-1 poetry run alembic -c backend/alembic.ini upgrade head
+db:
+	kubectl apply -f infra/database/
+	kubectl wait --for=condition=ready pod -l app=postgres --timeout=20s
 
-create_admin:
-	docker compose up --build initialize_admin -d
-popular:
-	docker exec -it cstrader-api-1 poetry run python backend/src/seed.py
 
-test:
-	docker exec -it cstrader-api-1 poetry run pytest
 
-install:
-	poetry install
-	
-setup: install up migrations create_admin popular test 
+api:
+	kubectl apply -f infra/api/
+	kubectl wait --for=condition=ready pod -l app=api --timeout=30s
+
+apply_frontend:
+	kubectl apply -f infra/frontend/
+
+ingress:
+	kubectl apply -f infra/ingress.yaml
+
+admin:
+	kubectl apply -f infra/api/admin-credentials.yaml
+	kubectl apply -f infra/api/admin_job.yaml
+
+access:
+	kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8080:80 --address 0.0.0.0
+
+start_JARVIS: start addons images secrets db migrations api apply_frontend ingress admin
+
+clean:
+	minikube delete

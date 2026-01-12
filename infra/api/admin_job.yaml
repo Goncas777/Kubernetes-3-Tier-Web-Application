@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-admin
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: admin
+        image: cstrader:latest
+        command:
+          - poetry
+          - run
+          - python
+          - backend/src/initialize_admin.py
+        envFrom:
+        - secretRef:
+            name: admin-credentials
+        - secretRef:
+            name: database-credentials

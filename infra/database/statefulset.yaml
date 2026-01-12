@@ -16,9 +16,24 @@ spec:
       containers:
         - name: postgres
           image: postgres:17
-          envFrom:
-            - secretRef:
+          env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
                 name: database-credentials
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: POSTGRES_DB
+          ports:
+            - containerPort: 5432
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
@@ -26,8 +41,7 @@ spec:
     - metadata:
         name: postgres-data
       spec:
-        accessModes:
-          - ReadWriteOnce
+        accessModes: ["ReadWriteOnce"]
         resources:
           requests:
             storage: 1Gi

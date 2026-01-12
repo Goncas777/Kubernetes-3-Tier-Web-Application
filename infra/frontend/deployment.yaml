@@ -2,28 +2,24 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: api
-  name: api
+    app: frontend
+  name: frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: api
+      app: frontend
   strategy: {}
   template:
     metadata:
       labels:
-        app: api
+        app: frontend
     spec:
       containers:
-      - image: cstrader:latest
+      - image: mynginx
+        name: mynginx
         imagePullPolicy: Never
-        name: cstrader
         ports:
-        - containerPort: 8000
-          name: http
-        envFrom:
-        - secretRef:
-            name: database-credentials
+        - containerPort: 3000
         resources: {}
 status: {}
