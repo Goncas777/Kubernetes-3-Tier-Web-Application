@@ -28,8 +28,10 @@ start-cluster:
 build:
 	@echo "Construindo imagem frontend..."
 	docker build -f frontend/Dockerfile -t $(FRONTEND_IMAGE) frontend
+	minikube cache add $(FRONTEND_IMAGE)
 	@echo "Construindo imagem backend..."
 	docker build -f backend/ops/Dockerfile -t $(BACKEND_IMAGE) .
+	minikube cache add $(BACKEND_IMAGE)
 	@echo "Build concluído!"
 
 # --- Deploy Manifests ---
@@ -83,6 +85,7 @@ test:
 	-H "Content-Type: application/json" \
 	-d '{"name": "Teste", "email": "testa@test.com", "password": "Secure1!"}' 
 	@echo "Teste concluído!"
+	kubectl port-forward svc/frontend-service 8080:3000
 
 
 # --- Cleanup ---
