@@ -33,6 +33,7 @@ build:
 	@echo "Build concluído!"
 
 # --- Deploy Manifests ---
+# --- Deploy Manifests ---
 deploy:
 	@echo "Criando secret de database (se não existir)..."
 	@if ! kubectl get secret $(DB_SECRET) >/dev/null 2>&1; then \
@@ -47,12 +48,26 @@ deploy:
 	kubectl apply -f infra/database
 	@echo "Aplicando manifests do frontend..."
 	kubectl apply -f infra/frontend
+
+	# --- Espera o pod do ingress ficar pronto ---
+	@echo "Aguardando pod do ingress ficar pronto..."
+	kubectl wait --namespace ingress-nginx \
+	  --for=condition=ready pod \
+	  --selector=app.kubernetes.io/component=controller \
+	  --timeout=120s
+
 	@echo "Aplicando manifests gerais..."
+	sleep 15
 	kubectl apply -f infra/
 	@echo "Deploy concluído!"
 
+
 # --- Migrations ---
 migrations:
+	@echo "Aguardando pod do database ficar pronto..."
+	kubectl wait --for=condition=ready pod \
+	  --selector=app=postgres \
+	  --timeout=120s
 	@echo "Aguardando pod do backend ficar pronto..."
 	$(eval BACKEND_POD := $(shell kubectl get pods -l app=api -o jsonpath='{.items[0].metadata.name}'))
 	@echo "Rodando migrations no pod $(BACKEND_POD)..."
@@ -63,7 +78,7 @@ migrations:
 test:
 	@echo "Aguardando pod do frontend ficar pronto..."
 	$(eval FRONTEND_POD := $(shell kubectl get pods -l app=frontend -o jsonpath='{.items[0].metadata.name}'))
-	@echo "Registrando usuário de teste no pod $(FRONTEND_POD)..."
+	@echo "A Registar user de teste no pod $(FRONTEND_POD)..."
 	kubectl exec $(FRONTEND_POD) -- curl -s -X POST http://api:8000/register_user \
 	-H "Content-Type: application/json" \
 	-d '{"name": "Teste", "email": "testa@test.com", "password": "Secure1!"}' 
