@@ -2,7 +2,6 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/kubernetes-helm-minikube
 {
 	"name": "Kubernetes - Minikube-in-Docker",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
@@ -24,7 +23,11 @@
 		"ghcr.io/devcontainers-extra/features/poetry:2": {
 			"version": "latest"
 		}
-	}
+	},
+
+	"forwardPorts": [3000, 8000]
+
+
 	
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

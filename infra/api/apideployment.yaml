@@ -22,8 +22,56 @@ spec:
         ports:
         - containerPort: 8000
           name: http
-        envFrom:
-        - secretRef:
-            name: database-credentials
-        resources: {}
-status: {}
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: POSTGRES_DB
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: SECRET_KEY
+          - name: ALGORITHM
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: ALGORITHM
+          - name: DATABASE_DRIVER
+            value: "postgresql"
+          - name: DATABASE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: POSTGRES_USER
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: POSTGRES_PASSWORD
+          - name: DATABASE_HOST
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: DATABASE_HOST
+          - name: DATABASE_PORT
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: DATABASE_PORT
+          - name: DATABASE_NAME
+            valueFrom:
+              secretKeyRef:
+                name: database-credentials
+                key: DATABASE_NAME

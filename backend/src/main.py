@@ -21,9 +21,7 @@ db_service = DatabaseService()
 # Configuração do CORS Middleware
 origins = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080"
+    "http://127.0.0.1:3000"
 ]
 
 app.add_middleware(
@@ -109,7 +107,10 @@ def login_user(email: str = Body(..., embed=True), password: str = Body(..., emb
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro durante o login: {str(e)}") from e
+        import logging
+        logging.exception("ERRO NO LOGIN")
+        raise
+
     
 
 @app.get("/users/me")

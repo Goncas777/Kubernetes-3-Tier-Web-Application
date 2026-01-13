@@ -6,14 +6,19 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Dict
 from datetime import datetime,timezone
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-# Conexão com a Base de Dados
-DATABASE_URL = (
-    f"{settings.database_driver}://"
-    f"{settings.database_username}:{settings.database_password}@"
-    f"{settings.database_host}:{settings.database_port}/"
-    f"{settings.database_name}"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    DATABASE_URL = (
+        f"{settings.database_driver}://"
+        f"{settings.database_username}:{settings.database_password}@"
+        f"{settings.database_host}:{settings.database_port}/"
+        f"{settings.database_name}"
+    )
 
 # Criação do Engine SQLAlchemy
 engine = create_engine(DATABASE_URL)
